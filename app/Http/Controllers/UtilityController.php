@@ -17,9 +17,9 @@ class UtilityController extends Controller
         return response()->json(['subjects' => $subjects]);
     }
 
-    public function getAllClasses()
+    public function getAllClasses(Request $request)
     {
-        $classes = SchoolClass::all();
+        $classes = SchoolClass::paginate($request->perPage?$request->perPage:2);
         return response()->json(['classes' => $classes]);
     }
 

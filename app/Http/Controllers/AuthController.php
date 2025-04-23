@@ -75,26 +75,27 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['success'=>false,'message'=>'Login Failed.Wrong Username password combination','error' => 'Unauthorized'], 401);
         }
 
-        $user = auth()->user();
-        
-        // Let's debug what permissions we're getting
+        $user = auth()->user();       
+      
         $directPermissions = $user->getAllPermissions();
         $rolePermissions = $user->getPermissionsViaRoles();
         $allPermissions = $directPermissions->merge($rolePermissions)->pluck('name')->unique();
-        
+        $role =($user->roles) ? $user->roles[0]->name : '';
         return response()->json([
+            'success'=>true,
+            'message'=>'Login Successful',
             'token' => $token,
+            'role'=>$role,
+            'permissions'=>$allPermissions,
             'user' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name,
                 'middle_name' => $user->middle_name,
                 'last_name' => $user->last_name,
                 'email' => $user->email,
-                'roles' => $user->getRoleNames(),
-                'all_permissions' => $allPermissions
             ]
         ]);
     }
