@@ -9,8 +9,7 @@ use App\Models\SchoolClassStream;
 
 class UtilityController extends Controller
 {
-    //
-
+    
     public function getAllSubjects()
     {
         $subjects = SchoolSubject::all();

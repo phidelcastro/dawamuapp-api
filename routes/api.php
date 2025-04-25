@@ -25,9 +25,13 @@ Route::middleware('auth:api')->group(function () {
         return response()->json(['message' => 'Welcome, Admin']);
     });
     Route::middleware(['role:super admin'])->prefix('admin')->group(function () {
-        Route::post('/create-class', [SchoolClassController::class, 'createClass']);
+        Route::post('/create-class', [SchoolClassController::class, 'createClass']);        
         Route::post('/create-subject', [SchoolSubjectController::class, 'createSubject']);
         Route::post('/create-stream', [SchoolClassStreamController::class, 'createStream']);
+
+        Route::post('/add-class-subject', [SchoolClassController::class, 'addClassSubject']);
+        Route::post('/add-class-exam', [SchoolClassController::class, 'addClassExam']);
+        Route::post('');
 
          });
 
