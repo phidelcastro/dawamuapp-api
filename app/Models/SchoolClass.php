@@ -14,4 +14,8 @@ class SchoolClass extends Model
         'class_description',
         'school_id', // Uncomment if you include school_id
     ];
+   
+    public function examDetails(){
+        return $this->hasMany(SchoolExamSchoolClass::class);
+    }
 }

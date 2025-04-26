@@ -27,11 +27,13 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware(['role:super admin'])->prefix('admin')->group(function () {
         Route::post('/create-class', [SchoolClassController::class, 'createClass']);        
         Route::post('/create-subject', [SchoolSubjectController::class, 'createSubject']);
+        Route::post('add-subjects-to-class',[SchoolClassController::class,'addSubjectsToClass']);
         Route::post('/create-stream', [SchoolClassStreamController::class, 'createStream']);
 
         Route::post('/add-class-subject', [SchoolClassController::class, 'addClassSubject']);
         Route::post('/add-class-exam', [SchoolClassController::class, 'addClassExam']);
-        Route::post('');
+        Route::post('create-exam',[SchoolClassController::class,'createExam']);
+        Route::post('add-subjects-to-exam',[SchoolClassController::class,'addSubjectsToExams']);
 
          });
 
@@ -40,7 +42,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/get-subjects', [UtilityController::class, 'getAllSubjects']);
         Route::get('/get-streams', [UtilityController::class, 'getAllStreams']);
         Route::get('/get-streams-by-class/{classId}', [UtilityController::class, 'getStreamsByClass']);
-        });  
+        Route::get('/get-exams', [UtilityController::class, 'getAllExams']);   
+        Route::get("get-exams-by-class/{classId}",[UtilityController::class,'getExamsByClass']);
+    });  
  
 
 

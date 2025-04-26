@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('school_exams', function (Blueprint $table) {
             $table->id();
             $table->string("exam_label");
+            $table->string("Year");
             $table->dateTime("start_date");
             $table->dateTime("end_date");
             $table->enum("exam_status",['Active','Inactive','Ongoing','completed','Canceled']);
