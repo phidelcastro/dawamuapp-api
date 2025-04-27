@@ -35,4 +35,8 @@ class SchoolClassController extends Controller
      return response()->json([$response]);
 
     }
+    public function addStudentToStream(Request $request){
+        $response =  $this->classManagentService->addStudentToStream($request);
+        return response()->json([$response]);
+    }
 }

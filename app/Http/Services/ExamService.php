@@ -8,6 +8,7 @@ use App\Models\SchoolExam;
 use App\Models\SchoolExamSchoolClass;
 use App\Models\SchoolExamSchoolClassSchoolClassStream;
 use App\Models\SchoolExamSchoolClassSubject;
+use App\Models\StudentSchoolClassStream;
 use DB;
 use Exception;
 
@@ -114,22 +115,58 @@ class ExamService
     }
     public function getAllExams()
     {
-        $exams = SchoolExam::with(['SchoolExamSchoolClass.SchoolClassDetails','SchoolExamSchoolClass.subjects.subjectDetails'])->get();
+        $exams = SchoolExam::with([
+            'SchoolExamSchoolClass.SchoolClassDetails',
+            'SchoolExamSchoolClass.subjects.subjectDetails',
+             'SchoolExamSchoolClass.streams'
+            ])->get();
         return response()->json(['exams' => $exams]);
 
     }
-    public function getExamsByClass($classId)
+    public function getExamsByClass($classId,$request)
     {
         $exams = SchoolExam::whereHas('SchoolExamSchoolClass', function ($query)use($classId) {           
             $query->where('school_class_id', $classId);
         })
         ->with([
             'SchoolExamSchoolClass.SchoolClassDetails',
-            'SchoolExamSchoolClass.subjects.subjectDetails'
+            'SchoolExamSchoolClass.subjects.subjectDetails',
+            'SchoolExamSchoolClass.streams'
         ])
-        ->get();        
+        ->paginate($request->perPage?$request->perPage:10);        
         return response()->json(['exams' => $exams]);
 
     }
+public function getExamEligibleStudentsByClass($classId,$examId){
+    $students=  StudentSchoolClassStream::
+    join("school_class_streams","school_class_streams.id","=","student_school_class_streams.school_class_stream_id")
+    ->join("school_classes","school_classes.id","=","school_class_streams.school_class_id")
+    ->join("school_exam_school_classes","school_exam_school_classes.school_class_id","=","school_classes.id")
+    ->join("students","students.id","=","student_school_class_streams.student_id")
+    ->join("users","users.id","=","students.user_id")
+    ->where("school_classes.id",$classId)
+    ->where("school_exam_school_classes.school_exam_id",$examId)
+    ->select('students.id AS student_id',
+       'students.student_admission_number',
+       'students.user_id',
+       'students.admitted_on_school_class_id',
+       'students.date_of_admission',
+       'students.status AS student_account_status',
+       'first_name',
+       'middle_name',
+       'last_name',
+       'date_of_birth',
+       'account_status AS user_account_status',
+       'gender',
+       'phone_number',
+       'closed_at',
+       'email'
+   )
+   ->get();
+   return response()->json(['exams' => $students]);
+}
+public function getExamSubjectsByClassAndExam($classId,$examId){
+
+}
 
 }

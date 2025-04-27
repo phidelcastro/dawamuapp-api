@@ -21,6 +21,9 @@ class SchoolExamSchoolClass extends Model
     public function subjects(){
         return $this->hasMany(SchoolExamSchoolClassSubject::class);
     }
+    public function streams(){
+        return $this->hasMany(SchoolExamSchoolClassSchoolClassStream::class);
+    }
     
     
 }
