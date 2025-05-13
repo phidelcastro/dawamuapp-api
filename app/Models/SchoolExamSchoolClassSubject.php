@@ -16,7 +16,7 @@ class SchoolExamSchoolClassSubject extends Model
     public function SchoolExamSchoolClass(){
         return $this->belongsTo(SchoolExamSchoolClass::class,"school_exam_school_class_id");
     }
-    public function subjectDetails(){
-        return $this->belongsTo(SchoolSubject::class,"school_class_school_subject_id");
+    public function schoolClassSchoolSubject(){
+        return $this->belongsTo(SchoolClassSchoolSubject::class,"school_class_school_subject_id");
     }
 }

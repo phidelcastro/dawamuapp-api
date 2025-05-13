@@ -11,4 +11,7 @@ class SchoolSubject extends Model
         'subject_code',
         'subject_description'
     ];
+    public function SchoolExamSchoolClassSubject(){
+        return $this->hasMany(SchoolExamSchoolClassSubject::class);
+     }
 }

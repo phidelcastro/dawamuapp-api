@@ -49,10 +49,16 @@ Route::middleware('auth:api')->group(function () {
         Route::get("get-exams-by-class/{classId}",[UtilityController::class,'getExamsByClass']);
         Route::get("get-student-by-class/{classId}",[UtilityController::class,'getStudentsByClass']);
         Route::get("get-subjects-by-class/{classId}",[UtilityController::class,'getSubjectsByClass']);
-
         Route::get("get-exam-eligible-students-by-class/{classId}/{examId}",[UtilityController::class,'getExamEligibleStudentsByClass']);
 
+        Route::get("get-student-results-by-exam/{classId}/{examId}",[UtilityController::class,"getStudentResultsByExam"]);
         
+        Route::get("get-student-exam-subjects",[UtilityController::class,"getStudentExamResults"]);
+        Route::post("upload-exam-paper-temporary",[UtilityController::class,"uploadExamPaperTemporarily"]);
+
+          Route::get("get-exam-subjects",[UtilityController::class,"getExamSubjects"]);
+          Route::get("get-exam-classes",[UtilityController::class,"getExamClasses"]);
+       
         
 
         

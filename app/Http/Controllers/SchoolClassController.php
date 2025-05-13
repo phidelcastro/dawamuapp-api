@@ -21,9 +21,10 @@ class SchoolClassController extends Controller
         $class = SchoolClass::create($request->all());
         return response()->json($class);
     }
-    public function createExam(CreateExamRequest $request){
+    public function createExam(Request $request){
+        // return response()->json($request->examinfo);
          $reponse = $this->eaxamservice->createExam($request);
-        return response()->json([$reponse]);
+        return $reponse;
     }
     public function addSubjectsToExams(Request $request){
         $reponse = $this->eaxamservice->addSubjectsToExams($request);

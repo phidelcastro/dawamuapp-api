@@ -77,6 +77,7 @@ class AuthController extends Controller
         if (!$token = JWTAuth::attempt($credentials)) {
             return response()->json(['success'=>false,'message'=>'Login Failed.Wrong Username password combination','error' => 'Unauthorized'], 401);
         }
+            JWTAuth::factory()->setTTL((int) env('JWT_TTL', 60));
 
         $user = auth()->user();       
       

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('grading_systems', function (Blueprint $table) {
             $table->id();
-            $table->string("Grade");
+            $table->string("grade");
             $table->string("comment");
             $table->double("lower_score");
             $table->double("upper_score");
