@@ -18,4 +18,7 @@ class SchoolClass extends Model
     public function examDetails(){
         return $this->hasMany(SchoolExamSchoolClass::class);
     }
+    public function schoolClassStream(){
+        return $this->hasMany(SchoolClassStream::class);
+    }
 }

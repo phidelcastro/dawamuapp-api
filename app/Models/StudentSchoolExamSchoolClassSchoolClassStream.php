@@ -20,7 +20,7 @@ class StudentSchoolExamSchoolClassSchoolClassStream extends Model
     'schoolExamSchoolClassSubject.schoolClassSchoolSubject.subjectDetails',
     'schoolExamSchoolClassSchoolClassStream.schoolClassStream.schoolClass'
 ];
-    public function studentDetails()
+    public function student()
     {
         return $this->belongsTo(Student::class, "student_id");
     }

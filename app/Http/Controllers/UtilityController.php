@@ -108,5 +108,9 @@ class UtilityController extends Controller
           $classes =$this->examservice->getExamClasses($request);
         return $classes;
     }
+    public function getExamStreams(Request $request){
+           $classes =$this->examservice->getExamStreams($request);
+        return $classes;
+    }
 
 }
