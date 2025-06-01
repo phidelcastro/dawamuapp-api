@@ -13,23 +13,10 @@ class RoleAndPermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Roles if they don't exist
-        $roles = [
-            'super admin',
-            'student',
-            'teacher',
-            'parent'
-        ];
+        $guards = ['web', 'api'];
 
-        $admin = null;
-        foreach ($roles as $role) {
-            $roleModel = Role::firstOrCreate(['name' => $role]);
-            if ($role === 'super admin') {
-                $admin = $roleModel;
-            }
-        }
-
-        // Create Permissions if they don't exist
+     
+        $roles = ['super admin', 'student', 'teacher', 'parent'];
         $permissions = [
             'create role',
             'create permission',
@@ -47,16 +34,33 @@ class RoleAndPermissionSeeder extends Seeder
             'delete exam',
         ];
 
-        $permissionModels = [];
-        foreach ($permissions as $permission) {
-            $permissionModels[] = Permission::firstOrCreate(['name' => $permission])->name;
+        foreach ($guards as $guard) {
+            $admin = null;
+            foreach ($roles as $role) {
+                $roleModel = Role::firstOrCreate([
+                    'name' => $role,
+                    'guard_name' => $guard
+                ]);
+
+                if ($role === 'super admin') {
+                    $admin = $roleModel;
+                }
+            }
+
+            $permissionModels = [];
+            foreach ($permissions as $permission) {
+                $perm = Permission::firstOrCreate([
+                    'name' => $permission,
+                    'guard_name' => $guard
+                ]);
+                $permissionModels[] = $perm->name;
+            }
+
+            if ($admin) {
+                $admin->syncPermissions($permissionModels);
+            }
         }
 
-        // Assign All Permissions to Super Admin if not already assigned
-        if ($admin) {
-            $admin->syncPermissions($permissionModels);
-        }
-
-        $this->command->info('Roles and permissions seeded successfully.');
+        $this->command->info('Roles and permissions seeded successfully for web and api guards.');
     }
 }

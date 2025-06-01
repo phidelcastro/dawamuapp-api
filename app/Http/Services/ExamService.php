@@ -258,16 +258,22 @@ class ExamService
             ]);
         }
     }
-    public function getAllExams()
-    {
-        $exams = SchoolExam::with([
-            'SchoolExamSchoolClass.SchoolClassDetails',
-            'SchoolExamSchoolClass.subjects.subjectDetails',
-            'SchoolExamSchoolClass.streams'
-        ])->get();
-        return response()->json(['exams' => $exams]);
+public function getAllExams(Request $request)
+{
+    $query = SchoolExam::join("school_terms", "school_terms.id", "=", "school_exams.school_term")
+        ->join("school_exam_school_classes", "school_exam_school_classes.school_exam_id", "=", "school_exams.id");
 
+    if ($request->filled("class")) {
+        $query->where("school_class_id", $request->class);
     }
+
+    $exams = $query
+        ->select("school_exams.*", "school_terms.term_label")
+        ->paginate($request->perPage ?? 10);
+
+    return response()->json(['exams' => $exams]);
+}
+
     public function getExamsByClass($classId, $request)
     {
         $exams = SchoolExam::whereHas('SchoolExamSchoolClass', function ($query) use ($classId) {
@@ -378,6 +384,61 @@ class ExamService
     }
     public function getStudentExamResults($request)
     {
+     
+
+        $results = Student::with([
+            'user',
+            'studentSchoolExamSchoolClassSchoolClassStream' 
+            => function ($query) use ($request) {
+                $query->whereHas('schoolExamSchoolClassSchoolClassStream.schoolClassStream.schoolClass', function ($q) use ($request) {
+                    if ($request->class) {
+                        Log::info('Filtering loaded relation by school_class_id = ' . $request->class);
+                        $q->where('school_classes.id', $request->class);
+                    }
+                    if ($request->stream) {
+                        $q->where('school_class_streams.id', $request->stream);
+                    }
+
+                })->whereHas('schoolExamSchoolClassSubject.schoolExamSchoolClass', function ($q) use ($request) {
+                    Log::info('Filtering loaded relation by exam_id = ' . $request->exam);
+                    if ($request->exam) {
+                        $q->where('school_exam_id', $request->exam);
+                    }
+
+                });
+                
+            }
+        ]) ->whereHas('studentSchoolExamSchoolClassSchoolClassStream.schoolExamSchoolClassSchoolClassStream.schoolClassStream.schoolClass', function ($query) use ($request) {
+                //   return $request->class;
+                Log::info('Entered whereHas for relation' . $request->class);
+                if ($request->class) {
+                    Log::info('Entered whereHas for relation qw' . $request->class);
+                    $query->where('school_classes.id', $request->class);
+                }
+                if ($request->stream) {
+                    $query->where('school_class_streams.id', $request->stream);
+                }
+
+            })
+            ->whereHas('studentSchoolExamSchoolClassSchoolClassStream.schoolExamSchoolClassSubject', function ($query2) use ($request) {
+                $query2->whereHas('schoolExamSchoolClass', function ($q) use ($request) {
+       if ($request->exam) {
+                    Log::info('' . $request->exam);
+                    $q->where('school_exam_id', $request->exam);
+                }
+                });
+            })
+            ->whereHas("StudentSchoolClassStream.SchoolClassStream", function ($query3) use ($request) {
+
+                if ($request->class) {
+                    Log::info('' . $request->class);
+                    $query3->where('school_class_id', $request->class);
+                }
+            })->paginate($request->perPage ?? 10);
+        return response()->json(['success' => true, 'results' => $results]);
+    }
+    public function getSingleStudentResults(Request $request)
+    {
 
         $results = Student::with([
             'user',
@@ -408,7 +469,10 @@ class ExamService
             })
             ->whereHas('studentSchoolExamSchoolClassSchoolClassStream.schoolExamSchoolClassSubject', function ($query2) use ($request) {
                 $query2->whereHas('schoolExamSchoolClass', function ($q) use ($request) {
-
+                   if ($request->exam) {
+                    Log::info('' . $request->exam);
+                    $q->where('school_exam_id', $request->exam);
+                }
                 });
             })
             ->whereHas("StudentSchoolClassStream.SchoolClassStream", function ($query3) use ($request) {
@@ -417,8 +481,11 @@ class ExamService
                     Log::info('' . $request->class);
                     $query3->where('school_class_id', $request->class);
                 }
-            })->paginate($request->perPage ?? 10);
+            })
+            ->where("students.id", $request->student)
+            ->first();
         return response()->json(['success' => true, 'results' => $results]);
+
     }
     public function getExamSubjects(Request $request)
     {
@@ -460,26 +527,100 @@ class ExamService
                 $query1->where("school_class_id", $request->class);
             }
         })
-        ->whereHas("examClass", function ($query2) use ($request) {
+            ->whereHas("examClass", function ($query2) use ($request) {
 
                 if ($request->filled("exam")) {
                     $query2->where("school_exam_id", $request->exam);
                 }
 
-        })
-        ->paginate($request->perPage ? $request->$request : 10);
+            })
+            ->paginate($request->perPage ? $request->$request : 10);
         return response()->json(['success' => true, 'streams' => $classes]);
 
     }
-    public function updateStudentExamResult(Request $request){
-        $results=$request->results;
-        foreach($results as $key=>$value){
-          StudentSchoolExamSchoolClassSchoolClassStream::where("id",$key)->update(['score'=>$value]);
+    public function updateStudentExamResult(Request $request)
+    {
+        $results = $request->results;
+        foreach ($results as $key => $value) {
+            StudentSchoolExamSchoolClassSchoolClassStream::where("id", $key)->update(['score' => $value]);
         }
-            return response()->json([
-                'message' => 'Exam results recorded successfullsuccessfully.',
-                'data' => $results
-            ]);
+        return response()->json([
+            'message' => 'Exam results recorded successfullsuccessfully.',
+            'data' => $results
+        ]);
     }
+    public function getLatestExamForAStudent($data)
+    {
+        $subjects =
+            DB::table('student_school_exam_school_class_school_class_streams')
+                ->join('school_exam_school_class_subjects', 'school_exam_school_class_subjects.id', '=', 'student_school_exam_school_class_school_class_streams.school_exam_school_class_subject_id')
+                ->join('school_exam_school_classes', 'school_exam_school_classes.id', '=', 'school_exam_school_class_subjects.school_exam_school_class_id')
+                ->where('student_id', $data->student)
+                ->select(
+        'school_exam_school_classes.school_exam_id',
+        'school_exam_school_classes.school_class_id'
+    )
+                ->distinct()
+                ->take(1)
+                ->orderBy("school_exam_school_classes.school_exam_id", "DESC")
+                
+                ->first();
+
+        return $subjects;
+    }
+    public function getPreviousExamForAStudent($data)
+    {
+  $secondExam = DB::table('student_school_exam_school_class_school_class_streams')
+    ->join('school_exam_school_class_subjects', 'school_exam_school_class_subjects.id', '=', 'student_school_exam_school_class_school_class_streams.school_exam_school_class_subject_id')
+    ->join('school_exam_school_classes', 'school_exam_school_classes.id', '=', 'school_exam_school_class_subjects.school_exam_school_class_id')
+    ->where('student_id', $data->student)
+    ->select(
+        'school_exam_school_classes.school_exam_id',
+        'school_exam_school_classes.school_class_id'
+    )
+    ->distinct()
+    ->orderBy('school_exam_school_classes.school_exam_id', 'DESC')
+    ->skip(1)
+    ->take(1)
+    ->first(); 
+
+        if (!$secondExam) {
+            return null;
+        }
+
+        return  $secondExam;
+    }
+    public function getExamSummaryForStudent($student, $exam, $class)
+    {
+        $examRecords = DB::table('student_school_exam_school_class_school_class_streams')
+            ->join('school_exam_school_class_subjects', 'school_exam_school_class_subjects.id', '=', 'student_school_exam_school_class_school_class_streams.school_exam_school_class_subject_id')
+            ->join('school_exam_school_classes', 'school_exam_school_classes.id', '=', 'school_exam_school_class_subjects.school_exam_school_class_id')
+            ->join('school_classes', 'school_classes.id', '=', 'school_exam_school_classes.school_class_id')
+            ->where('student_id', $student)
+            ->where('school_exam_id', $exam)
+            ->where('school_class_id', $class)
+            ->select(
+                'student_school_exam_school_class_school_class_streams.*',
+                'school_exam_school_classes.school_exam_id'
+            )
+            ->get();
+
+        $totalScore = $examRecords->sum('score');
+        return response()->json([                                    
+            'exam_subject_records' => $examRecords,
+            'total_score' => $totalScore,
+        ]);
+    }
+public function getLatestExamDetails( Request $request){
+   $latestexam = $this->getLatestExamForAStudent($request);
+   $prevexam = $this->getPreviousExamForAStudent($request);
+   $summary = $this->getExamSummaryForStudent($request->student,$latestexam->school_exam_id,$latestexam->school_class_id);
+   return response()->json([
+            'message' => 'Exam summary retrieved successfully.',
+            'latestexam' => $latestexam,
+            'prevexam' => $prevexam,
+            'summary'=>$summary
+        ]);
+}
 
 }

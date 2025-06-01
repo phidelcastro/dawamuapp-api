@@ -23,4 +23,5 @@ class Student extends Model
     public function StudentSchoolClassStream(){
         return $this->hasMany(StudentSchoolClassStream::class);
     }
+    
 }

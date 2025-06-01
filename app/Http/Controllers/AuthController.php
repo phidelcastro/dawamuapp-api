@@ -10,6 +10,11 @@ use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
+    // public function assignUserAdmin(Request $request){
+    //   $user = User::where("id",1)->first();
+    //   $user->assignRole(roles: 'super admin');
+
+    // }
     public function registerStudent(Request $request)
     {
         // Validate the request
@@ -84,6 +89,7 @@ class AuthController extends Controller
         $directPermissions = $user->getAllPermissions();
         $rolePermissions = $user->getPermissionsViaRoles();
         $allPermissions = $directPermissions->merge($rolePermissions)->pluck('name')->unique();
+
         $role =($user->roles) ? $user->roles[0]->name : '';
         return response()->json([
             'success'=>true,

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Services\ClassManagementService;
 use App\Http\Services\ExamService;
 use App\Http\Services\FileUploadService;
+use App\Http\Services\TeacherService;
 use App\Models\SchoolExam;
 use Illuminate\Http\Request;
 use App\Models\SchoolSubject;
@@ -16,11 +17,13 @@ class UtilityController extends Controller
     protected $examservice;
     protected $classmanagementservice;
     protected $fileUploadService;
-    public function __construct(ExamService $examService, ClassManagementService $classManagementService, FileUploadService $fileUploadService)
+    protected $teachersservice;
+    public function __construct(ExamService $examService, ClassManagementService $classManagementService, FileUploadService $fileUploadService, TeacherService $teacherService)
     {
         $this->examservice = $examService;
         $this->classmanagementservice = $classManagementService;
         $this->fileUploadService=$fileUploadService;
+        $this->teachersservice=$teacherService;
     }
 
     public function getAllSubjects()
@@ -46,17 +49,21 @@ class UtilityController extends Controller
         return response()->json(['streams' => $streams]);
     }
 
-    public function getStreamsByClass($classId, Request $request)
+    public function getStreamsByClass( Request $request)
     {
-        $streams = SchoolClassStream::where('school_class_id', $classId)
-            ->paginate($request->perPage ? $request->perPage : 2);
+        $streams = SchoolClassStream::query();
+        if($request->filled("class")){
+
+             $streams->where('school_class_id', $request->class);
+        }
+       $streams= $streams->select('*')->paginate($request->perPage ? $request->perPage : 2);
 
         return response()->json(['streams' => $streams]);
     }
-    public function getAllExams()
+    public function getAllExams(Request $request)
     {
-        $exams = $this->examservice->getAllExams();
-        return response()->json(['exams' => $exams], 201);
+        $exams = $this->examservice->getAllExams($request);
+        return  $exams;
 
     }
     public function getExamsByClass($classId, Request $request)
@@ -112,5 +119,22 @@ class UtilityController extends Controller
            $classes =$this->examservice->getExamStreams($request);
         return $classes;
     }
-
+      public function getSingleStudentResults(Request $request){
+          $response =  $this->examservice->getSingleStudentResults($request);
+        return response()->json([$response]);
+    }
+    public function getStudents(Request $request)
+    {
+        $students = $this->classmanagementservice->getStudents($request);
+        return $students;
+    }
+    public function getSchoolTerms(Request $request){
+        $terms = $this->classmanagementservice->getSchoolTerms($request);
+        return $terms;
+    }
+    public function getTeachers(Request $request){
+        $teachers = $this->teachersservice->getTeachers($request);
+        return $teachers;
+    }
+  
 }

@@ -19,6 +19,7 @@ class SchoolExamSchoolClassSchoolClassStream extends Model
     public function examClass(){
         return $this->belongsTo(SchoolExamSchoolClass::class,'school_exam_school_class_id');
     }
+    
     public function studentSchoolExamSchoolClassSchoolClassStream(){
         $this->hasMany(StudentSchoolExamSchoolClassSchoolClassStream::class);
     }
