@@ -23,5 +23,15 @@ class Student extends Model
     public function StudentSchoolClassStream(){
         return $this->hasMany(StudentSchoolClassStream::class);
     }
+    public function guardian()
+{
+    return $this->belongsTo(Guardian::class);
+}
+
+public function otherContacts()
+{
+    return $this->hasMany(OtherContact::class);
+}
+
     
 }

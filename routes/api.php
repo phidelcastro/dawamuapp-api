@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdmissionsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SchoolSubjectController;
@@ -40,14 +41,15 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/update-student/{student}', [SchoolClassController::class, 'updateStudentAndStream']);
         Route::post('/register-teacher', [SchoolClassController::class, 'registerTeacher']);
         Route::post('/register-teacher-stream-subjects', [SchoolClassController::class, 'registerTeacherStreamSubjects']); 
-
         Route::post('/detach-teacher-subject-from-stream', [SchoolClassController::class, 'detachTeacherStreamSubjects']); 
+         Route::post('/register-new-admission', [AdmissionsController::class, 'newAdmission']); 
         
         
     });
 
     Route::prefix('utilities')->group(function () {
         Route::get('/get-classes', [UtilityController::class, 'getAllClasses']);
+        Route::get('/get-roles', [UtilityController::class, 'getAllRoles']);
         Route::get('/get-subjects', [UtilityController::class, 'getAllSubjects']);
         Route::get('/get-streams', [UtilityController::class, 'getAllStreams']);
         Route::get('/get-streams-by-class', [UtilityController::class, 'getStreamsByClass']);

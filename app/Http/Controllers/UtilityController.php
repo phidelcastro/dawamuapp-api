@@ -6,6 +6,7 @@ use App\Http\Services\ClassManagementService;
 use App\Http\Services\ExamService;
 use App\Http\Services\FileUploadService;
 use App\Http\Services\TeacherService;
+use App\Http\Services\UtilityService;
 use App\Models\SchoolExam;
 use Illuminate\Http\Request;
 use App\Models\SchoolSubject;
@@ -18,12 +19,14 @@ class UtilityController extends Controller
     protected $classmanagementservice;
     protected $fileUploadService;
     protected $teachersservice;
-    public function __construct(ExamService $examService, ClassManagementService $classManagementService, FileUploadService $fileUploadService, TeacherService $teacherService)
+    protected $utilityservice;
+    public function __construct(ExamService $examService, ClassManagementService $classManagementService, FileUploadService $fileUploadService, TeacherService $teacherService,UtilityService $utilityservice)
     {
         $this->examservice = $examService;
         $this->classmanagementservice = $classManagementService;
         $this->fileUploadService=$fileUploadService;
         $this->teachersservice=$teacherService;
+        $this->utilityservice=$utilityservice;
     }
 
     public function getAllSubjects()
@@ -135,6 +138,10 @@ class UtilityController extends Controller
     public function getTeachers(Request $request){
         $teachers = $this->teachersservice->getTeachers($request);
         return $teachers;
+    }
+    public function getAllRoles(Request $request){
+         $teachers = $this->utilityservice->getAllRoles($request);
+        return $teachers; 
     }
   
 }

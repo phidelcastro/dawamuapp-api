@@ -16,7 +16,7 @@ class RoleAndPermissionSeeder extends Seeder
         $guards = ['web', 'api'];
 
      
-        $roles = ['super admin', 'student', 'teacher', 'parent'];
+        $roles = ['super admin', 'student', 'teacher', 'parent','staff','operations manager','nurse'];
         $permissions = [
             'create role',
             'create permission',

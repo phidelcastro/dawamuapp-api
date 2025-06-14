@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Services;
 
+use App\Mail\TeacherMails;
 use App\Models\SchoolClassStreamTeacherSubject;
 use App\Models\Teacher;
 use App\Models\TeacherSubject;
@@ -8,6 +9,7 @@ use App\Models\User;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Mail;
 use Spatie\Permission\Models\Role;
 use Validator;
 
@@ -16,6 +18,7 @@ class TeacherService
     public function registerTeacherByAdmin(Request $request)
     {
         $request->password = generateRandomPassword();
+        $unencodedpassword = $request->password;
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string',
             'middle_name' => 'required|string',
@@ -114,11 +117,14 @@ class TeacherService
                     );
                 }
             }
+            $theteacher = Teacher::with(['user', 'teacherSubjects.schoolSubject'])->where("id", $teacher->id)->first();
+            $this->sendEmailToTeacher($theteacher, $unencodedpassword);
             DB::commit();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Teacher registered successfully.',
-                'data' => $teacher->load('teacherSubjects'),
+                'data' => $theteacher,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -228,6 +234,20 @@ class TeacherService
                 'message' => 'Failed to assign subjects: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function sendEmailToTeacher($theteacher, $unencodedPassword)
+    {
+        Mail::to(['bonny.moki@gmail.com'])
+            ->queue(new TeacherMails([
+                'subject' => 'Your Teacher Account Created.',
+                'password' => $unencodedPassword,
+                'user_type' => 'teacher',
+                'teacher' => $theteacher,
+                'student' => []
+            ], 'teacherWelcome'));
+
+        return response()->json(['data' => []]);
     }
 
 }

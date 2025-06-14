@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->date('date_of_employment')->nullable();
-            $table->string('staff_id')->nullable()->unique();
-            $table->string('teacher_tsc_number')->nullable()->unique();
-            $table->enum('status',['ACTIVE','SUSPENDED','CLOSED']);
+            $table->string('staff_id')->nullable();
+            $table->string('professional_registration_number')->nullable();
+            $table->string('level_of_education')->nullable();
+            $table->integer('years_of_experience_prior_employment')->nullable();
+            $table->enum('status', ['ACTIVE', 'SUSPENDED', 'CLOSED']);
             $table->timestamps();
         });
     }
