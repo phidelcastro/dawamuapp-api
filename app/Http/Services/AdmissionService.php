@@ -5,6 +5,7 @@ use App\Mail\StudentMails;
 use App\Models\Guardian;
 use App\Models\OtherContact;
 use App\Models\Student;
+use App\Models\StudentSchoolClassStream;
 use App\Models\User;
 use Hash;
 use Illuminate\Http\Request;
@@ -80,6 +81,14 @@ class AdmissionService
                     'student_admission_number' => $generatestudentadmissionNumber,
                     'guardian_id' => $guardian->id
                 ]);
+                //register to stream
+                StudentSchoolClassStream::create([
+                  'student_id'=>$createdst ->id,
+                  'school_class_stream_id'=> $studentData['stream_id'],
+                  'start_date' => $studentData['stream_admission_date'] ?? date("Y-m-d"),
+                  'status'=>'ACTIVE'
+                ]);
+                     
                 //send the student welcome mail
                 $thisStudent = Student::where("id", $createdst->id)->with(['user'])->first();
                 $this->sendEmailToStudent($thisStudent, $stunencodedpss);

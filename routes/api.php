@@ -41,13 +41,13 @@ Route::middleware('auth:api')->group(function () {
         Route::post('register-student-and-assign-stream', [SchoolClassController::class, 'registerStudentAndAssignStream']);
         Route::put('/update-student/{student}', [SchoolClassController::class, 'updateStudentAndStream']);
         Route::post('/register-teacher', [SchoolClassController::class, 'registerTeacher']);
-        Route::post('/register-teacher-stream-subjects', [SchoolClassController::class, 'registerTeacherStreamSubjects']); 
-        Route::post('/detach-teacher-subject-from-stream', [SchoolClassController::class, 'detachTeacherStreamSubjects']); 
-         Route::post('/register-new-admission', [AdmissionsController::class, 'newAdmission']); 
-        Route::post('/register-staff', [SchoolStaffController::class, 'registerStaff']); 
-         
-        
-        
+        Route::post('/register-teacher-stream-subjects', [SchoolClassController::class, 'registerTeacherStreamSubjects']);
+        Route::post('/detach-teacher-subject-from-stream', [SchoolClassController::class, 'detachTeacherStreamSubjects']);
+        Route::post('/register-new-admission', [AdmissionsController::class, 'newAdmission']);
+        Route::post('/register-staff', [SchoolStaffController::class, 'registerStaff']);
+
+
+
     });
 
     Route::prefix('utilities')->group(function () {
@@ -71,6 +71,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get("get-single-student-exam-results", [UtilityController::class, "getSingleStudentResults"]);
         Route::get("get-school-terms", [UtilityController::class, "getSchoolTerms"]);
         Route::get("get-teachers", [UtilityController::class, "getTeachers"]);
+
+        Route::get("get-parents", [UtilityController::class, "getParents"]);
+        Route::get("get-staff", [UtilityController::class, "getStaff"]);
     });
 
     Route::prefix('student')->group(function () {

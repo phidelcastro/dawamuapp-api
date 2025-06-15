@@ -143,5 +143,16 @@ class UtilityController extends Controller
          $teachers = $this->utilityservice->getAllRoles($request);
         return $teachers; 
     }
+
+        public function getParents(Request $request){
+         $teachers = $this->utilityservice->getParents($request);
+        return $teachers; 
+    }
+         public function getStaff(Request $request){
+         $teachers = $this->utilityservice->getStaff($request);
+        return $teachers; 
+    }
+
+    
   
 }
