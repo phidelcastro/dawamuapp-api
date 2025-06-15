@@ -3,6 +3,7 @@ namespace App\Http\Services;
 use App\Mail\ParentMails;
 use App\Mail\StudentMails;
 use App\Models\Guardian;
+use App\Models\OtherContact;
 use App\Models\Student;
 use App\Models\User;
 use Hash;
@@ -23,17 +24,17 @@ class AdmissionService
         try {
 
             $gunencodedpss = generateRandomPassword();
-          $userG = User::create([
-    'first_name'    => $data['gurdian']['first_name'],
-    'middle_name'   => $data['gurdian']['middle_name'] ?? null,
-    'last_name'     => $data['gurdian']['last_name'],
-    'date_of_birth' => $data['gurdian']['dob'],
-    'gender'        => $data['gurdian']['gender'],
-    'phone_number'  => $data['gurdian']['phone'],
-    'email'         => $data['gurdian']['email'],
-    'password'      => Hash::make($gunencodedpss),
-    'account_status'=> 'ACTIVE',
-]);
+            $userG = User::create([
+                'first_name' => $data['gurdian']['first_name'],
+                'middle_name' => $data['gurdian']['middle_name'] ?? null,
+                'last_name' => $data['gurdian']['last_name'],
+                'date_of_birth' => $data['gurdian']['dob'],
+                'gender' => $data['gurdian']['gender'],
+                'phone_number' => $data['gurdian']['phone'],
+                'email' => $data['gurdian']['email'],
+                'password' => Hash::make($gunencodedpss),
+                'account_status' => 'ACTIVE',
+            ]);
 
             $role = Role::findByName("parent");
             $userG->assignRole($role);
@@ -56,6 +57,9 @@ class AdmissionService
 
             // 2. Add Students
             foreach ($data['students'] as $studentData) {
+                //generate student admission number
+                $generatestudentadmissionNumber = generateStdAdmission();
+                //generate student admission number
                 $stunencodedpss = generateRandomPassword();
                 $userS = User::create([
                     'first_name' => $studentData['first_name'],
@@ -70,30 +74,30 @@ class AdmissionService
                 ]);
                 $createdst = Student::create([
                     'user_id' => $userS->id,
-                    'school_admission_date' => $studentData['school_admission_date'],
-                    'stream_admission_date' => $studentData['stream_admission_date'],
-                    'dob' => $studentData['dob'],
-                    'gender' => $studentData['gender'],
-                    'class_id' => $studentData['class_id'],
-                    'stream_id' => $studentData['stream_id'],
-                    'profile_pic' => $studentData['profilePicUrl'] ?? null,
-                    'gurdian_id' => $guardian->id
+                    'date_of_admission' => $studentData['stream_admission_date'],
+                    'status' => 'ACTIVE',
+                    'admitted_on_school_class_id' => $studentData['class_id'],
+                    'student_admission_number' => $generatestudentadmissionNumber,
+                    'guardian_id' => $guardian->id
                 ]);
                 //send the student welcome mail
                 $thisStudent = Student::where("id", $createdst->id)->with(['user'])->first();
                 $this->sendEmailToStudent($thisStudent, $stunencodedpss);
                 //send the student welcome mail
+                foreach ($data['otherContacts'] as $contactData) {
+                    OtherContact::create([
+                        'first_name' => $contactData['first_name'],
+                        'last_name' => $contactData['last_name'],
+                        'relationship' => $contactData['relationship'],
+                        'phone' => $contactData['phone'],
+                        'email' => $contactData['email'],
+                        'student_id' => $createdst->id,
+                        'guardian_id' => $guardian->id
+                    ]);
+                }
+
             }
 
-            foreach ($data['otherContacts'] as $contactData) {
-                $guardian->otherContacts()->create([
-                    'first_name' => $contactData['first_name'],
-                    'last_name' => $contactData['last_name'],
-                    'relationship' => $contactData['relationship'],
-                    'phone' => $contactData['phone'],
-                    'email' => $contactData['email'],
-                ]);
-            }
 
             DB::commit();
 
@@ -138,7 +142,7 @@ class AdmissionService
                 'password' => $unencodedPassword,
                 'user_type' => 'student',
                 'student' => $thestudent
-            ], 'parentWelcome'));
+            ], 'studentWelcome'));
 
         return response()->json(['data' => []]);
     }

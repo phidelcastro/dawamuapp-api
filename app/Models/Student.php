@@ -10,7 +10,9 @@ class Student extends Model
         'user_id',
         'student_admission_number',
         'date_of_admission',
-        'status'
+        'status',
+        'guardian_id',
+        'admitted_on_school_class_id'
     ];
 
     public function user()

@@ -39,7 +39,7 @@ class SchoolStaffService
                 'years_of_experience_prior_employment' => $request->years_of_experience_prior_employment,
                 'status' => 'ACTIVE',
             ]);
-            $role = Role::findById($request->role);
+            $role = Role::findById($request->registered_as);
             $user->assignRole($role);
             $thestaff = SchoolStaff::with(['user'])->where("id", $staff->id)->first();
             $this->sendEmailToStaff($thestaff, $unencodedpassword);

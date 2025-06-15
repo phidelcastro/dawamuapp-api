@@ -16,11 +16,15 @@ class OtherContact extends Model
         'phone',
         'email',
         'student_id',
+        'guardian_id'
     ];
 
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+    public function guardian(){
+        return $this->belongsTo(Guardian::class);
     }
 
 }

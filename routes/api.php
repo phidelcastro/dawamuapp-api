@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdmissionsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SchoolClassController;
+use App\Http\Controllers\SchoolStaffController;
 use App\Http\Controllers\SchoolSubjectController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UtilityController;
@@ -43,6 +44,8 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/register-teacher-stream-subjects', [SchoolClassController::class, 'registerTeacherStreamSubjects']); 
         Route::post('/detach-teacher-subject-from-stream', [SchoolClassController::class, 'detachTeacherStreamSubjects']); 
          Route::post('/register-new-admission', [AdmissionsController::class, 'newAdmission']); 
+        Route::post('/register-staff', [SchoolStaffController::class, 'registerStaff']); 
+         
         
         
     });

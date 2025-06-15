@@ -1,5 +1,5 @@
 {{-- resources/views/mails/auth/account-created.blade.php --}}
-@extends('mails.master')
+@extends('emails.master')
 
 @section('page-content')
     <div style="padding: 0 5%; margin-right:auto; margin-left:auto" class="responsive">
@@ -16,7 +16,7 @@
         </div>
 
         <div style="width: 100%; text-align: center;">
-            <img src="{{ asset('assets/emails/welcome-to-yie.png') }}" class="cover-image" alt="OTP Illustration"
+            <img src="{{ asset('assets/emails/welcome_.png') }}" class="cover-image" alt="Welcome Mail"
                 style="max-height: 400px; display: block; margin: 0 auto;">
         </div>
 

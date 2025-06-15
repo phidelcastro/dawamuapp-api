@@ -96,11 +96,7 @@
                         <a class="links" href="mailto:info@dawamu.ac.ke"
                             style="color:#5063F4; font-family:Montserrat; font-size:16px; font-style:normal; font-weight:700; line-height:normal; text-decoration-line:underline; background-color:transparent; box-sizing:border-box; text-decoration:underline">Email</a>
                     </span> us or use our
-                    <span
-                        style="box-sizing: border-box; color: #5063F4; font-family: Montserrat; font-size: 16px; font-style: normal; font-weight: 700; line-height: normal; text-decoration-line: underline;">
-                        <a class="links" href="https://dawamu.ac.ke"
-                            style="color:#5063F4; font-family:Montserrat; font-size:16px; font-style:normal; font-weight:700; line-height:normal; text-decoration-line:underline; background-color:transparent; box-sizing:border-box; text-decoration:underline">Chat</a>
-                    </span>.
+                   
                 </p>
             </div>
             <div style="margin: 0 auto; width: 80%; text-align: center;">
@@ -110,9 +106,10 @@
                         Dawamu School</a>
                 </div>
                 <div style="display: inline-block;">
-                    <a href="https://dawamu.ac.ke" class="links"
+                    <!-- <a href="https://dawamu.ac.ke" class="links"
                         style="color:#5063F4; font-family:Montserrat; font-size:16px; font-style:normal; font-weight:700; line-height:normal; text-decoration-line:underline; background-color:transparent; margin-left:20px; text-decoration:underline">FAQ</a>
-                </div>
+                 -->
+                    </div>
             </div>
 
 

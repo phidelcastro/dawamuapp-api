@@ -23,6 +23,8 @@ public function students()
 {
     return $this->hasMany(Student::class);
 }
-
+public function otherContacts(){
+    return $this->hasMany(OtherContact::Class);
+}
 
 }

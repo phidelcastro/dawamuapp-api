@@ -38,15 +38,15 @@ class StudentMails extends Mailable implements ShouldQueue
         $passed = $this->data;
 
         switch ($this->typeofmail) {
-            case "staffWelcome":
-                $staff = $passed['staff'];
+            case "studentWelcome":
+                $student = $passed['student'];
                 $password= $passed['password'];
-                return $this->view('emails.staff.welcome', compact('staff','password'))
+                return $this->view('emails.students.welcome', compact('student','password'))
                     ->subject($passed['subject'] ?? 'Welcome to Our School')
                     ->replyTo('info@example.com', 'School Admin');
 
             default:
-                return $this->view('emails.staff.default')
+                return $this->view('emails.students.default')
                     ->subject($passed['subject'] ?? 'Staff Communication')
                     ->replyTo('info@example.com', 'School Admin');
         }
