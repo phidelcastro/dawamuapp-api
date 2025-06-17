@@ -48,7 +48,17 @@ class UtilityController extends Controller
 
     public function getAllStreams(Request $request)
     {
-        $streams = SchoolClassStream::paginate($request->perPage ? $request->perPage : 2);
+        $query = SchoolClassStream::query();
+        if ($request->has('name')) {
+            $query->where('stream_name', 'like', '%' . $request->name . '%');
+        }
+    
+        if ($request->has('class')) {
+            $query->where('school_class_id', $request->class);
+        }
+        $perPage = $request->get('perPage', 2); // Default to 2
+        $streams = $query->paginate($perPage);
+    
         return response()->json(['streams' => $streams]);
     }
 

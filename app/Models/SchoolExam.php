@@ -20,5 +20,9 @@ class SchoolExam extends Model
     public function SchoolExamSchoolClass(){
         return $this->hasMany(SchoolExamSchoolClass::class);
     }
+       protected function serializeDate(\DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 
 }

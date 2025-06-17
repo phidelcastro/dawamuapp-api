@@ -76,6 +76,7 @@ class ExamService
                     'subjects' => [],
                     'streams' => []
                 ];
+                $streamentries=[];
 
                 foreach ($classConfig['subjects'] as $j => $subject) {
                     if (empty($subject['subjectDetails'])) {
@@ -116,10 +117,13 @@ class ExamService
                     ]);
 
                     $savedClass['streams'][] = $streamEntry;
+                    array_push($streamentries,$stream['streamDetails']['id']);
+                    
                 }
                 //create students results via jobs and queues.   
-                $allclassstreams = SchoolClassStream::where("school_class_id", $classConfig['id'])->pluck("id");
-                PrepareExamStreamsResult::dispatch($allclassstreams->toArray(), $exam, $classEntry->id);
+                // $allclassstreams = SchoolClassStream::where("school_class_id", $classConfig['id'])->pluck("id");
+                
+                PrepareExamStreamsResult::dispatch($streamentries, $exam, $classEntry->id);
                 //create student results via jobs and queues.
 
                 $savedData['classes'][] = $savedClass;
@@ -204,7 +208,11 @@ class ExamService
             ]);
         }
     }
-
+public function getSchoolExamSchoolClassId($exam)
+{
+    $school_exam_school_class_id = SchoolExamSchoolClass::where("school_exam_id",$request->exam)->pluck("id");
+    return $school_exam_school_class_id;
+}
     public function addSubjectsToExams($request)
     {
         try {
@@ -213,10 +221,9 @@ class ExamService
             $exampfound = SchoolExam::where("id", $request->exam)->first();
             if ($exampfound) {
                 foreach ($request->subjects as $subject) {
-                    // You will need to get the school_exam_school_class_id
-                    // Probably you are saving somewhere the relation between exam and class
+                    
                     $school_exam_school_class_id = getSchoolExamSchoolClassId($request->exam, $subject['class']);
-                    // ^^^ You need a function like this based on your database design
+                  
 
                     foreach ($subject['classsubjects'] as $classsubject) {
                         if (SchoolClassSchoolSubject::where("school_class_id", $classsubject)->exists()) {
@@ -444,11 +451,11 @@ public function getAllExams(Request $request)
             'user',
             'studentSchoolExamSchoolClassSchoolClassStream' => function ($query) use ($request) {
                 $query->whereHas('schoolExamSchoolClassSchoolClassStream.schoolClassStream.schoolClass', function ($q) use ($request) {
-                    if ($request->class) {
+                    if ($request->filled("class")) {
                         Log::info('Filtering loaded relation by school_class_id = ' . $request->class);
                         $q->where('school_classes.id', $request->class);
                     }
-                    if ($request->stream) {
+                    if ($request->filled("stream")) {
                         $q->where('school_class_streams.id', $request->stream);
                     }
 
@@ -457,27 +464,27 @@ public function getAllExams(Request $request)
         ])
             ->whereHas('studentSchoolExamSchoolClassSchoolClassStream.schoolExamSchoolClassSchoolClassStream.schoolClassStream.schoolClass', function ($query) use ($request) {
                 //   return $request->class;
-                Log::info('Entered whereHas for relation' . $request->class);
-                if ($request->class) {
+                // Log::info('Entered whereHas for relation' . $request->class);
+                if ($request->filled("class")) {
                     Log::info('Entered whereHas for relation qw' . $request->class);
                     $query->where('school_classes.id', $request->class);
                 }
-                if ($request->stream) {
+                if ($request->filled("stream")) {
                     $query->where('school_class_streams.id', $request->stream);
                 }
 
             })
             ->whereHas('studentSchoolExamSchoolClassSchoolClassStream.schoolExamSchoolClassSubject', function ($query2) use ($request) {
                 $query2->whereHas('schoolExamSchoolClass', function ($q) use ($request) {
-                   if ($request->exam) {
+                   if ($request->filled("exam")) {
                     Log::info('' . $request->exam);
                     $q->where('school_exam_id', $request->exam);
                 }
                 });
             })
             ->whereHas("StudentSchoolClassStream.SchoolClassStream", function ($query3) use ($request) {
-
-                if ($request->class) {
+              
+                if ($request->filled("class")) {
                     Log::info('' . $request->class);
                     $query3->where('school_class_id', $request->class);
                 }
@@ -565,8 +572,11 @@ public function getAllExams(Request $request)
                 ->orderBy("school_exam_school_classes.school_exam_id", "DESC")
                 
                 ->first();
-
-        return $subjects;
+       
+        return $subjects ?: (object)[
+    'school_exam_id' => null,
+    'school_class_id' => null,
+];
     }
     public function getPreviousExamForAStudent($data)
     {
@@ -584,37 +594,58 @@ public function getAllExams(Request $request)
     ->take(1)
     ->first(); 
 
-        if (!$secondExam) {
-            return null;
-        }
-
-        return  $secondExam;
+     
+return $secondExam ?: (object)[
+    'school_exam_id' => null,
+    'school_class_id' => null,
+];
     }
-    public function getExamSummaryForStudent($student, $exam, $class)
+    public function getExamSummaryForStudent($student, $exam, $class,$jsonres=true)
     {
         $examRecords = DB::table('student_school_exam_school_class_school_class_streams')
             ->join('school_exam_school_class_subjects', 'school_exam_school_class_subjects.id', '=', 'student_school_exam_school_class_school_class_streams.school_exam_school_class_subject_id')
+            ->join('school_class_school_subjects','school_class_school_subjects.id','=','school_exam_school_class_subjects.school_class_school_subject_id')
+            ->join('school_subjects', 'school_subjects.id', '=', 'school_class_school_subjects.school_subject_id')
             ->join('school_exam_school_classes', 'school_exam_school_classes.id', '=', 'school_exam_school_class_subjects.school_exam_school_class_id')
             ->join('school_classes', 'school_classes.id', '=', 'school_exam_school_classes.school_class_id')
+            ->join('grading_systems','grading_systems.id',"=",'student_school_exam_school_class_school_class_streams.grade_id')
+            ->join('school_exams','school_exams.id',"=",'school_exam_school_class_subjects.school_exam_id')
+            
             ->where('student_id', $student)
             ->where('school_exam_id', $exam)
-            ->where('school_class_id', $class)
+            ->where('school_exam_school_classes.school_class_id', $class)
             ->select(
                 'student_school_exam_school_class_school_class_streams.*',
-                'school_exam_school_classes.school_exam_id'
+                'school_exam_school_classes.school_exam_id',
+                'school_subjects.subject_name',
+                'grading_systems.grade'                
             )
             ->get();
 
-        $totalScore = $examRecords->sum('score');
+            $totalScore = $examRecords->sum('score');
+
+    // Get distinct subject names
+    $subjectNames = $examRecords->pluck('subject_name')->unique()->values();
+        if($jsonres){
         return response()->json([                                    
             'exam_subject_records' => $examRecords,
             'total_score' => $totalScore,
+            'subjectNames'=>$subjectNames
         ]);
+        }else{
+            return [                                    
+            'exam_subject_records' => $examRecords,
+            'total_score' => $totalScore,
+            'subjectNames'=>$subjectNames
+            ];
+        }
+
     }
+
 public function getLatestExamDetails( Request $request){
    $latestexam = $this->getLatestExamForAStudent($request);
    $prevexam = $this->getPreviousExamForAStudent($request);
-   $summary = $this->getExamSummaryForStudent($request->student,$latestexam->school_exam_id,$latestexam->school_class_id);
+   $summary = $this->getExamSummaryForStudent($request->student,$latestexam->school_exam_id,$latestexam->school_class_id,false);
    return response()->json([
             'message' => 'Exam summary retrieved successfully.',
             'latestexam' => $latestexam,

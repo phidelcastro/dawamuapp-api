@@ -17,6 +17,7 @@ class UtilityService
     public function getParents(Request $request)
     {
         $parents = Guardian::query()
+        ->with(['students.StudentSchoolClassStream.SchoolClassStream.SchoolClass','otherContacts'])
     ->join("users", "users.id", "=", "guardians.user_id")
     ->select(
         'users.*',
@@ -28,7 +29,7 @@ class UtilityService
         return response()->json([
             'status' => 'success',
             'message' => 'Teachers fetched successfully.',
-            'teachers' => $parents
+            'parents' => $parents
         ]);
     }
     public function getStaff(Request $request)

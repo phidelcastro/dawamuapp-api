@@ -1,11 +1,11 @@
 services:
   laravel.test:
     build:
-      context: './vendor/laravel/sail/runtimes/8.4'
+      context: './vendor/laravel/sail/runtimes/8.2'
       dockerfile: Dockerfile
       args:
         WWWGROUP: '${WWWGROUP:-1000}'
-    image: 'sail-8.4/app'
+    image: 'sail-8.2/app'
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     ports:
@@ -49,7 +49,7 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     ports:
-      - '8081:80'
+      - '8085:80'
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306

@@ -41,12 +41,17 @@ class ParentMails extends Mailable implements ShouldQueue
                 $password= $passed['password'];
                 return $this->view('emails.parents.welcome', compact('guardian','password'))
                     ->subject($passed['subject'] ?? 'Welcome to Our School')
-                    ->replyTo('info@example.com', 'School Admin');
+                    ->replyTo('info@dawamuscho.ac.ke', 'School Admin');
+            case "newMessage":
+                $event = $passed['event'];
+                return $this->view('emails.parents.', compact('event'))
+                    ->subject($passed['subject'] ?? 'New Message From Dawamu')
+                    ->replyTo('info@dawamuscho.ac.ke', 'School Admin');
 
             default:
                 return $this->view('emails.parents.default')
                     ->subject($passed['subject'] ?? 'Parent Communication')
-                    ->replyTo('info@example.com', 'School Admin');
+                    ->replyTo('info@dawamuscho.ac.ke', 'School Admin');
         }
     }
 }

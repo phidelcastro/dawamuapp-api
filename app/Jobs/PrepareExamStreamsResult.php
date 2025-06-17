@@ -31,6 +31,11 @@ class PrepareExamStreamsResult implements ShouldQueue
         $this->streams = $streams;
         $this->exam = $exam;
         $this->school_exam_school_class_id = $school_exam_school_class_id;
+        Log::info('Submitted', [
+            'submitted streams' => $streams,
+            'the exam' => $exam,
+            'submitted school_exam_school_class_id' => $school_exam_school_class_id
+        ]);
     }
 
 
@@ -54,14 +59,26 @@ class PrepareExamStreamsResult implements ShouldQueue
 
                 Log::info('Processing stream', [
                     'stream_id' => $stream,
-                    'students' => $getAllStreamsStudentsIds,
-                    'stream_class_ids' => $schoolExamSchoolClassSchoolClassStreamsId
+                   
                 ]);
+
+                Log::info('Processing stream', [
+                    'students' => $getAllStreamsStudentsIds,
+                   
+                ]);
+                Log::info('Processing stream', [
+                   'stream_class_ids' => $schoolExamSchoolClassSchoolClassStreamsId
+                   
+                ]);
+               
+                
 
                 $examClassSubjects = SchoolExamSchoolClassSubject::where('school_exam_school_class_id', $this->school_exam_school_class_id)->get();
 
                 foreach ($getAllStreamsStudentsIds as $studentId) {
+                    Log::info('executing 3');
                     foreach ($examClassSubjects as $examClassSubject) {
+                        Log::info('executing 4');
                         StudentSchoolExamSchoolClassSchoolClassStream::updateOrCreate([
                             'school_exam_school_class_subject_id' => $examClassSubject->id,
                             'school_exam_school_class_school_class_streams_id' => $schoolExamSchoolClassSchoolClassStreamsId->first(),

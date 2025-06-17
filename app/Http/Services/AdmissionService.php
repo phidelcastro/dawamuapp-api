@@ -57,6 +57,7 @@ class AdmissionService
             //send the parent welcome mail
 
             // 2. Add Students
+            $st =1;
             foreach ($data['students'] as $studentData) {
                 //generate student admission number
                 $generatestudentadmissionNumber = generateStdAdmission();
@@ -73,6 +74,9 @@ class AdmissionService
                     'password' => Hash::make($stunencodedpss),
                     'account_status' => 'ACTIVE',
                 ]);
+
+                $roles = Role::findByName("student");
+                $userS->assignRole($roles);
                 $createdst = Student::create([
                     'user_id' => $userS->id,
                     'date_of_admission' => $studentData['stream_admission_date'],
@@ -104,7 +108,7 @@ class AdmissionService
                         'guardian_id' => $guardian->id
                     ]);
                 }
-
+                $st++;
             }
 
 
