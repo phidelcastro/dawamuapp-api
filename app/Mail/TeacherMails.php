@@ -38,10 +38,10 @@ class TeacherMails extends Mailable
         $passed = $this->data;
 
         switch ($this->typeofmail) {
-            case "studentWelcome":
-                $student = $passed['student'];
+            case "teacherWelcome":
+                $teacher = $passed['teacher'];
                 $password= $passed['password'];
-                return $this->view('emails.teachers.welcome', compact('student','password'))
+                return $this->view('emails.teachers.welcome', compact('teacher','password'))
                     ->subject($passed['subject'] ?? 'Welcome to Our School')
                     ->replyTo('info@example.com', 'School Admin');
 

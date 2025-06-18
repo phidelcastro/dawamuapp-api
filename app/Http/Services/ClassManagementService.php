@@ -2,10 +2,13 @@
 namespace App\Http\Services;
 
 use App\Models\SchoolClassSchoolSubject;
+use App\Models\SchoolClassStreamTeacherSubject;
 use App\Models\SchoolTerm;
 use App\Models\Student;
 use App\Models\StudentSchoolClassStream;
 use App\Models\User;
+use App\Models\Guardian;
+use App\Models\Teacher;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
@@ -128,10 +131,10 @@ class ClassManagementService
             "users.first_name",
             "users.middle_name",
             "users.last_name",
-              "users.email",
+            "users.email",
             "users.phone_number",
             "users.gender",
-             "users.date_of_birth"
+            "users.date_of_birth"
         )
 
             ->paginate($request->perPage ? $request->perPage : 10);
@@ -230,80 +233,118 @@ class ClassManagementService
         }
     }
     public function updateStudentAndStream($request, $studentId)
-{
-    try {
-        $request->validate([
-            'first_name' => 'required|string',
-            'middle_name' => 'required|string',
-            'last_name' => 'required|string',
-            'date_of_birth' => 'required|date',
-            'gender' => 'required|in:Male,Female,Other',
-            'phone_number' => 'nullable|string',
-            'email' => 'required|email|unique:users,email,' . $request->user_id,
-            'date_of_admission' => 'required|date',
-            'school_class_stream_id' => 'required|integer',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date'
-        ]);
+    {
+        try {
+            $request->validate([
+                'first_name' => 'required|string',
+                'middle_name' => 'required|string',
+                'last_name' => 'required|string',
+                'date_of_birth' => 'required|date',
+                'gender' => 'required|in:Male,Female,Other',
+                'phone_number' => 'nullable|string',
+                'email' => 'required|email|unique:users,email,' . $request->user_id,
+                'date_of_admission' => 'required|date',
+                'school_class_stream_id' => 'required|integer',
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date'
+            ]);
 
-        DB::beginTransaction();
+            DB::beginTransaction();
 
-        $student = Student::findOrFail($studentId);
-        $user = $student->user;
+            $student = Student::findOrFail($studentId);
+            $user = $student->user;
 
-        // Update user details
-        $user->update([
-            'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
-            'last_name' => $request->last_name,
-            'date_of_birth' => $request->date_of_birth,
-            'gender' => $request->gender,
-            'phone_number' => $request->phone_number,
-            'email' => $request->email,
-        ]);
+            // Update user details
+            $user->update([
+                'first_name' => $request->first_name,
+                'middle_name' => $request->middle_name,
+                'last_name' => $request->last_name,
+                'date_of_birth' => $request->date_of_birth,
+                'gender' => $request->gender,
+                'phone_number' => $request->phone_number,
+                'email' => $request->email,
+            ]);
 
-        // Update student info (without changing admission number)
-        $student->update([
-            'date_of_admission' => $request->date_of_admission,
-            'status' => 'ACTIVE'
-        ]);
+            // Update student info (without changing admission number)
+            $student->update([
+                'date_of_admission' => $request->date_of_admission,
+                'status' => 'ACTIVE'
+            ]);
 
-        // Update or create stream assignment
-        $student_stream = StudentSchoolClassStream::updateOrCreate(
-            [
-                'student_id' => $student->id,
-                'school_class_stream_id' => $request->school_class_stream_id,
-            ],
-            [
-                'start_date' => $request->start_date ?? date('Y-m-d'),
-                'end_date' => $request->end_date,
-                'status' => 'Active'
-            ]
-        );
+            // Update or create stream assignment
+            $student_stream = StudentSchoolClassStream::updateOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'school_class_stream_id' => $request->school_class_stream_id,
+                ],
+                [
+                    'start_date' => $request->start_date ?? date('Y-m-d'),
+                    'end_date' => $request->end_date,
+                    'status' => 'Active'
+                ]
+            );
 
-        DB::commit();
+            DB::commit();
 
-        return response()->json([
-            'message' => 'Student details updated successfully',
-            'data' => [
-                'user' => $user,
-                'student' => $student,
-                'student_stream' => $student_stream
-            ]
-        ], 200);
+            return response()->json([
+                'message' => 'Student details updated successfully',
+                'data' => [
+                    'user' => $user,
+                    'student' => $student,
+                    'student_stream' => $student_stream
+                ]
+            ], 200);
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'message' => 'Update failed',
-            'error' => $e->getMessage()
-        ], 500);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Update failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
-  public function getSchoolTerms(Request $request){
-   $terms= SchoolTerm::all();
-         return response()->json(['sucess' => false, 'terms' => $terms]);
+    public function getSchoolTerms(Request $request)
+    {
+        $terms = SchoolTerm::all();
+        return response()->json(['sucess' => false, 'terms' => $terms]);
+    }
+
+    public function getDashboard(Request $request)
+    {
+        if ($request->filled("class")) {
+            $students = StudentSchoolClassStream::
+                join("school_class_streams", "school_class_streams.id", "=", "student_school_class_streams.school_class_stream_id")
+                ->where("school_class_streams.school_class_id", $request->class)
+                ->count();
+            $gurdian = StudentSchoolClassStream::
+                join("school_class_streams", "school_class_streams.id", "=", "student_school_class_streams.school_class_stream_id")
+                ->join("students", "students.id", "=", "student_school_class_streams.student_id")
+                ->groupBy("students.guardian_id")
+                ->where("school_class_streams.school_class_id", $request->class)
+                ->count();
+            $universityIntake = 0;
+            $teachers = SchoolClassStreamTeacherSubject::join("school_class_streams", "school_class_streams.id", "=", "school_class_stream_teacher_subjects.school_class_stream_id")
+                ->join("teacher_subjects", "teacher_subjects.id", "=", "school_class_stream_teacher_subjects.teacher_subject_id")
+                ->where("school_class_streams.school_class_id", $request->class)
+                ->groupBy("teacher_subjects.teacher_id")
+                ->count();
+            $subjects = SchoolClassSchoolSubject::where("school_class_id", $request->class)->count();
+            return response()->json([
+                'sucess' => false,
+                'students' => $students,
+                'gurdian' => $gurdian,
+                'universityIntake' => $universityIntake,
+                'teachers' => $teachers,
+                'subjects' => $subjects
+            ]);
+        }
+        $students = Student::count();
+        $gurdian = Guardian::count();
+        $teachers = Teacher::count();
+        $fees = 0;
+        $universityIntake = 20;
+        return response()->json(['sucess' => false, 'students' => $students, 'gurdian' => $gurdian, 'universityIntake' => $universityIntake, 'teachers' => $teachers]);
     }
 
 

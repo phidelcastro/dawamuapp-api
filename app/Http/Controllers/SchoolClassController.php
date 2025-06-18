@@ -71,4 +71,8 @@ class SchoolClassController extends Controller
                  $response =  $this->teacherservice->detachTeacherStreamSubjects($request);
         return $response; 
     }
+    public function getDashboard(Request $request){
+        $response =  $this->classManagentService->getDashboard($request);
+        return $response; 
+    }
 }

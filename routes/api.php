@@ -58,6 +58,7 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/update-student-medical/{id}', [StudentMedicalController::class, 'updateStudentMedicalRecords']);
         Route::post('/save-parent-event', [EventsController::class, 'saveEventRecord']);
         Route::put('/update-parent-event/{id}', [EventsController::class, 'updateEventRecord']);
+        Route::get('/get-dashboard', [SchoolClassController::class, 'getDashboard']);
     });
  
 
@@ -110,7 +111,7 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware(['role:parent|student'])->prefix('parent')->group(function () {
        
     });
-    Route::middleware(['role:staff|student|parent|nurse|nurse'])->prefix('common-mobile')->group(function () {
+    Route::middleware(['role:staff|student|parent|nurse|nurse|teacher'])->prefix('common-mobile')->group(function () {
         Route::get("get-student-latest-exam", [StudentController::class, "getLatestStudentExam"]);
         Route::get("get-student-prev-exam", [StudentController::class, "getPreviousExamForAStudent"]);
         Route::get("get-student-exam-summary", [StudentController::class, "getLatestExamDetails"]);
@@ -118,7 +119,6 @@ Route::middleware('auth:api')->group(function () {
         Route::get("get-student-results", [MobileEndpointsUtilityController::class, "getStudentResults"]);
         Route::get("get-student-medical", [MobileEndpointsUtilityController::class, "getStudentMedical"]);
         Route::get("get-student-discipline", [MobileEndpointsUtilityController::class, "getStudentDiscipline"]);
-
         Route::post("record-student-discipline", [DisciplineEndpointsController::class, "saveIndisciplineCase"]);
         Route::post('/register-student-medical', [StudentMedicalController::class, 'saveStudentMedicalRecords']);
     });

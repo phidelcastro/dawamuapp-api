@@ -15,6 +15,9 @@ class Teacher extends Model
         'date_of_employment',
     ];
     protected $appends = ['teacher_stream_subject_assignments'];
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
     public function teacherSubjects()
     {
         return $this->hasMany(TeacherSubject::class)->with(relations: 'teacherStreamSubjects');

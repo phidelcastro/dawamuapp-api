@@ -26,13 +26,13 @@ class AdmissionService
 
             $gunencodedpss = generateRandomPassword();
             $userG = User::create([
-                'first_name' => $data['gurdian']['first_name'],
-                'middle_name' => $data['gurdian']['middle_name'] ?? null,
-                'last_name' => $data['gurdian']['last_name'],
-                'date_of_birth' => $data['gurdian']['dob'],
-                'gender' => $data['gurdian']['gender'],
-                'phone_number' => $data['gurdian']['phone'],
-                'email' => $data['gurdian']['email'],
+                'first_name' => $data['guardian']['first_name'],
+                'middle_name' => $data['guardian']['middle_name'] ?? null,
+                'last_name' => $data['guardian']['last_name'],
+                'date_of_birth' => $data['guardian']['dob'],
+                'gender' => $data['guardian']['gender'],
+                'phone_number' => $data['guardian']['phone'],
+                'email' => $data['guardian']['email'],
                 'password' => Hash::make($gunencodedpss),
                 'account_status' => 'ACTIVE',
             ]);
@@ -43,12 +43,13 @@ class AdmissionService
             // 1. Create Guardian
             $guardian = Guardian::create([
                 'user_id' => $userG->id,
-                'relationship' => $data['gurdian']['relationship'],
-                'phone' => $data['gurdian']['phone'],
-                'town' => $data['gurdian']['town'],
-                'address' => $data['gurdian']['address'],
-                'box_number' => $data['gurdian']['box_number'],
-                'zip_code' => $data['gurdian']['zip_code'],
+                'relationship' => $data['guardian']['relationship'],
+                'phone' => $data['guardian']['phone'],
+                'town' => $data['guardian']['town'],
+                'city' => $data['guardian']['town'],
+                'address' => $data['guardian']['address'],
+                'box_number' => $data['guardian']['box_number'],
+                'zip_code' => $data['guardian']['zip_code'],
             ]);
 
             //send the parent welcome mail
