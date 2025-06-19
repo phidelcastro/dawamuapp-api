@@ -29,7 +29,7 @@ if (!function_exists('generateStudentAdmissionNumber')) {
 }
 
 if (!function_exists('generateRandomPassword')) {
-    function generateRandomPassword($length = 4)
+    function generateRandomPassword($length = 6)
     {
         // Old logic (commented out):
         // $base = Str::random($length - 2);
