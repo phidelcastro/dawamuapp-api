@@ -29,4 +29,10 @@ class MobileEndpointsUtilityController extends Controller
        $response = $this->mobileendpointutilityservice->getStudentResults($request);
        return $response;
     }
+   public function getStudentP( $id){
+       $response = $this->mobileendpointutilityservice->getStudentP($id);
+       return $response;
+    }
+
+    
 }

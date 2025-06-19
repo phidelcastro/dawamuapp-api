@@ -31,9 +31,16 @@ if (!function_exists('generateStudentAdmissionNumber')) {
 if (!function_exists('generateRandomPassword')) {
     function generateRandomPassword($length = 10)
     {
-        $base = Str::random($length - 2);
-        $symbols = '!@#$%^&*';
-        return $base . $symbols[random_int(0, strlen($symbols) - 1)] . random_int(0, 9);
+        // $base = Str::random($length - 2);
+        // $symbols = '!@#$%^&*';
+        // return $base . $symbols[random_int(0, strlen($symbols) - 1)] . random_int(0, 9);
+          // Old logic (commented out):
+        // $base = Str::random($length - 2);
+        // $symbols = '!@#$%^&*';
+        // return $base . $symbols[random_int(0, strlen($symbols) - 1)] . random_int(0, 9);
+
+        // New logic: generate a 4-letter-only password (uppercase/lowercase letters)
+        return Str::random($length);
     }
 }
 

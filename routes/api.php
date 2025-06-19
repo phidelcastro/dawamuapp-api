@@ -104,6 +104,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get("get-student-latest-exam", [StudentController::class, "getLatestStudentExam"]);
         Route::get("get-student-prev-exam", [StudentController::class, "getPreviousExamForAStudent"]);
         Route::get("get-student-exam-summary", [StudentController::class, "getLatestExamDetails"]);
+       
     });
     Route::middleware(['role:staff'])->prefix('staff')->group(function () {
      
@@ -121,6 +122,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get("get-student-discipline", [MobileEndpointsUtilityController::class, "getStudentDiscipline"]);
         Route::post("record-student-discipline", [DisciplineEndpointsController::class, "saveIndisciplineCase"]);
         Route::post('/register-student-medical', [StudentMedicalController::class, 'saveStudentMedicalRecords']);
+
+         Route::get('/student/get-me/{id}', [MobileEndpointsUtilityController::class, 'getStudentP']);
+         Route::get('/parent/get-me/{id}', [MobileEndpointsUtilityController::class, 'getMe']);
     });
 
 });
