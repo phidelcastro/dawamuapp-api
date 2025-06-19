@@ -29,20 +29,22 @@ if (!function_exists('generateStudentAdmissionNumber')) {
 }
 
 if (!function_exists('generateRandomPassword')) {
-    function generateRandomPassword($length = 10)
+    function generateRandomPassword($length = 4)
     {
-        // $base = Str::random($length - 2);
-        // $symbols = '!@#$%^&*';
-        // return $base . $symbols[random_int(0, strlen($symbols) - 1)] . random_int(0, 9);
-          // Old logic (commented out):
+        // Old logic (commented out):
         // $base = Str::random($length - 2);
         // $symbols = '!@#$%^&*';
         // return $base . $symbols[random_int(0, strlen($symbols) - 1)] . random_int(0, 9);
 
-        // New logic: generate a 4-letter-only password (uppercase/lowercase letters)
-        return Str::random($length);
+        // New logic: generate a numeric-only password
+        $numbersOnly = '';
+        for ($i = 0; $i < $length; $i++) {
+            $numbersOnly .= random_int(0, 9);
+        }
+        return $numbersOnly;
     }
 }
+
 
 if (!function_exists('generateStdAdmission')) {
     function generateStdAdmission($length = 10)
