@@ -45,7 +45,6 @@ if (!function_exists('generateRandomPassword')) {
     }
 }
 
-
 if (!function_exists('generateStdAdmission')) {
     function generateStdAdmission($length = 10)
     {
@@ -58,7 +57,7 @@ if (!function_exists('generateStdAdmission')) {
                 ->lockForUpdate()
                 ->first();
 
-            if ($lastStudent && preg_match('/\d+$/', $lastStudent->admission_number, $matches)) {
+            if ($lastStudent && preg_match('/\d+$/', $lastStudent->student_admission_number, $matches)) {
                 $lastNumber = (int) $matches[0];
                 $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
             } else {
@@ -69,6 +68,8 @@ if (!function_exists('generateStdAdmission')) {
         });
     }
 }
+
+
 if (!function_exists('sendFirebaseNotification')) {
     function sendFirebaseNotification($userType, $userId, $message, $titlee)
     {
