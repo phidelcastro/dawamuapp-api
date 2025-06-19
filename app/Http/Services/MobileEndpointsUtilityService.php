@@ -2,6 +2,7 @@
 namespace App\Http\Services;
 use App\Models\Guardian;
 use App\Models\SchoolStaff;
+use App\Models\Student;
 use App\Models\StudentDiscipline;
 use App\Models\StudentMedicalHistory;
 use App\Models\UserFCMToken;
@@ -22,13 +23,13 @@ class MobileEndpointsUtilityService
         try {
             DB::beginTransaction();
 
-          $deviceToken = UserFCMToken::updateOrCreate(
-    [ 'user_id' => $validated['userId'] ],
-    [
-        'token' => $validated['token'],
-        'phone_type' => $validated['phone_type'] ?? null
-     ]
-);
+            $deviceToken = UserFCMToken::updateOrCreate(
+                ['user_id' => $validated['userId']],
+                [
+                    'token' => $validated['token'],
+                    'phone_type' => $validated['phone_type'] ?? null
+                ]
+            );
 
 
             DB::commit();
@@ -95,6 +96,45 @@ class MobileEndpointsUtilityService
                 'subjectNames' => $subjectNames
             ];
         }
+
+    }
+    public function getStudentP($id)
+    {
+        $students = Student::join("users", "users.id", "=", "students.user_id")
+            ->join("student_school_class_streams", "student_school_class_streams.student_id", "=", "students.id")
+            ->join("school_class_streams", "school_class_streams.id", "=", "student_school_class_streams.school_class_stream_id")
+            ->join("school_classes", "school_classes.id", "=", "school_class_streams.school_class_id");
+        $students->where("students.id", $id);
+        $students = $students->select(
+            "students.*",
+            DB::raw("CONCAT(first_name, ' ',middle_name,' ', last_name) AS full_name"),
+            "school_class_streams.stream_name",
+            "school_classes.class_name",
+            "student_school_class_streams.start_date as stream_admission_date",
+            "student_school_class_streams.school_class_stream_id",
+            "student_school_class_streams.end_date as stream_exit_date",
+            "students.date_of_admission as date_admitted_to_school",
+            "users.first_name",
+            "users.middle_name",
+            "users.last_name",
+            "users.email",
+            "users.phone_number",
+            "users.gender",
+            "users.date_of_birth"
+        );
+        $student = $students->first();  
+        return $student;
+    }
+    public function getParentP()
+    {
+
+    }
+    public function getTeacherP()
+    {
+
+    }
+    public function getStaffP()
+    {
 
     }
 }
