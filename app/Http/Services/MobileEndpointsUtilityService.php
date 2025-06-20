@@ -104,7 +104,7 @@ class MobileEndpointsUtilityService
             ->join("student_school_class_streams", "student_school_class_streams.student_id", "=", "students.id")
             ->join("school_class_streams", "school_class_streams.id", "=", "student_school_class_streams.school_class_stream_id")
             ->join("school_classes", "school_classes.id", "=", "school_class_streams.school_class_id");
-        $students->where("students.id", $id);
+        $students->where("users.id", $id);
         $students = $students->select(
             "students.*",
             DB::raw("CONCAT(first_name, ' ',middle_name,' ', last_name) AS full_name"),
