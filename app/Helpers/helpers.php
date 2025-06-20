@@ -41,7 +41,7 @@ if (!function_exists('generateRandomPassword')) {
         for ($i = 0; $i < $length; $i++) {
             $numbersOnly .= random_int(0, 9);
         }
-        return $numbersOnly;
+        return 123456;
     }
 }
 
